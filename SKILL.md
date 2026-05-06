@@ -5,11 +5,11 @@
 ## What This Project Is
 
 A collection of reusable Dockerfile building blocks for assembling Docker images from modular pieces:
-- **blocks/base/** — OS base images (Ubuntu 24.04, 22.04)
-- **blocks/env/** — Environment variable snippets (e.g. noninteractive)
-- **blocks/layers/** — Patch layers (apt setup, base tools)
-- **blocks/tools/** — Language runtimes and CLIs (Node.js, Git, uv/Python)
-- **blocks/mirrors/** — Chinese mirror configurations (Aliyun for apt, npm, pnpm, uv)
+- **base/** — OS base images (Ubuntu 24.04, 22.04)
+- **env/** — Environment variable snippets (e.g. noninteractive)
+- **layers/** — Patch layers (apt setup, base tools)
+- **tools/** — Language runtimes and CLIs (Node.js, Git, uv/Python)
+- **mirrors/** — Chinese mirror configurations (Aliyun for apt, npm, pnpm, uv)
 
 ## Directory Structure
 
@@ -33,13 +33,15 @@ dockerfile-stacks/
 │       ├── pnpm/aliyun.txt
 │       └── uv/aliyun.txt
 ├── compose.py              # Compose a full Dockerfile from blocks
-├── SKILL.md                # AI agent skill file
+├── SKILL.md                # This file
 └── examples/               # Composed Dockerfile examples
 ```
 
-## Quick Start
+## How to Use
 
 ### Step 1: Generate a Dockerfile
+
+Run `compose.py` with the blocks you need:
 
 ```bash
 python compose.py \
@@ -47,7 +49,7 @@ python compose.py \
   --env noninteractive \
   --layer setup \
   --tools node,git,uv \
-  --mirrors apt,npm,uv \
+  --mirrors apt,npm \
   --out my-image.Dockerfile
 ```
 
@@ -84,15 +86,35 @@ docker build -f my-image.Dockerfile \
 When a user asks to create a Docker image with specific requirements:
 
 1. **Identify needed blocks** from the request
-2. **Run `compose.py`** with the appropriate flags to generate the Dockerfile
+   - Base OS → `blocks/base/`
+   - Dev tools → `blocks/tools/`
+   - China mirror → `blocks/mirrors/`
+2. **Run `compose.py`** to generate the Dockerfile
 3. **Report the result** to the user with the `docker build` command
 4. **Offer to build it** if Docker is available
 
-## For AI Agents: Reading SKILL.md
+### Example Conversation
 
-This project includes `SKILL.md` — an AI-readable instruction file. When an AI agent encounters this project, it should:
+**User:** "帮我生成一个带 Node.js 和 uv 的 Ubuntu 镜像"
 
-1. Read `SKILL.md` to understand the block system
-2. Ask the user what components they need (base OS, tools, mirrors)
-3. Generate the Dockerfile using `compose.py`
-4. Report the build command back to the user
+**Agent:**
+```bash
+python compose.py \
+  --base ubuntu-24.04 \
+  --env noninteractive \
+  --layer setup \
+  --tools node,git,uv \
+  --mirrors apt,npm,uv \
+  --out ubuntu-node-uv.Dockerfile
+```
+
+Then share:
+```bash
+docker build -f ubuntu-node-uv.Dockerfile -t my-image .
+```
+
+## Notes
+
+- All block files (`blocks/*.txt`) contain **pure Dockerfile instructions** (no `FROM` statement — that's added by `--base`)
+- `compose.py` concatenates blocks in the correct order and adds the `FROM` at the top
+- Blocks with `ARG` in their content (node, uv) accept `--build-arg` at build time
