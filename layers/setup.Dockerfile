@@ -1,0 +1,7 @@
+# Base setup layer: apt update + essential tools
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    ca-certificates \
+    tzdata \
+    && rm -rf /var/lib/apt/lists/*

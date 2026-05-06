@@ -1,0 +1,9 @@
+# uv installer with Python
+# ARG PYTHON_VERSION=3.11
+ARG PYTHON_VERSION=3.11
+
+RUN curl -fsSL https://astral.sh/uv/install.sh | bash \
+    && mv /root/.local/bin/uv /usr/local/bin/uv
+
+RUN uv python install ${PYTHON_VERSION} \
+    && uv python list
