@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+*.pyo
+my-image.Dockerfile
+*.tar
