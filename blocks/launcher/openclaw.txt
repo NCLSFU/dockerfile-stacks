@@ -1,0 +1,8 @@
+# Launcher: OpenClaw CLI
+# Installs OpenClaw agent framework via npm
+# Note: OpenClaw is designed primarily as a host-side agent. Running it inside
+# a container is useful for containerized deployments or when the container
+# itself is managed by a host-side OpenClaw instance.
+RUN npm install -g openclaw
+
+CMD ["openclaw", "gateway", "start"]

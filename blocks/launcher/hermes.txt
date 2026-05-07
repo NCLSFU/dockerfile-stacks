@@ -1,0 +1,6 @@
+# Launcher: Hermes Agent (NousResearch)
+# Installs Hermes Agent via official install script, then runs hermes CLI
+RUN curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+
+# hermes command is installed to /usr/local/bin/hermes (FHS layout when root)
+CMD ["hermes"]

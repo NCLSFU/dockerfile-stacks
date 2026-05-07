@@ -1,0 +1,2 @@
+# Launcher: Bash interactive shell
+CMD ["/bin/bash"]

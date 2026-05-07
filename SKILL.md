@@ -64,6 +64,7 @@ python compose.py \
 | `--mirrors` | `apt`, `npm`, `pnpm`, `uv` | Comma-separated; Aliyun mirrors for China |
 | `--node-version` | e.g. `22`, `20`, `18` | Defaults to `22` |
 | `--python-version` | e.g. `3.11`, `3.12` | Defaults to `3.11` |
+| `--launcher` | `bash`, `hermes`, `openclaw` | What runs when the container starts; defaults to `bash` |
 | `--out` | filename | Output path; defaults to `my-image.Dockerfile` |
 
 ### Step 2: Build the Image
@@ -111,6 +112,124 @@ python compose.py \
 Then share:
 ```bash
 docker build -f ubuntu-node-uv.Dockerfile -t my-image .
+```
+
+## Launchers
+
+Choose what happens when the container starts:
+
+| Launcher | What it does |
+|----------|-------------|
+| `bash` | Drops into interactive bash shell (default) |
+| `hermes` | Installs Hermes Agent and runs `hermes` CLI (NousResearch AI agent) |
+| `openclaw` | Installs OpenClaw CLI and starts the gateway |
+
+```bash
+# Example: build a dev container with Hermes agent
+python compose.py \
+  --base ubuntu-24.04 \
+  --tools node,git,uv \
+  --mirrors apt,uv \
+  --launcher hermes \
+  --out hermes-dev.Dockerfile
+
+docker build -f hermes-dev.Dockerfile -t hermes-dev .
+docker run -it --rm hermes-dev
+# → Hermes Agent interactive TUI starts
+```
+
+## Image Naming
+
+Use `-t` to name your image and optionally tag it:
+
+```bash
+# Basic name (latest tag implied)
+docker build -f my-image.Dockerfile -t my-image .
+
+# With version tag
+docker build -f my-image.Dockerfile -t my-image:1.0 .
+
+# With registry prefix (for push later)
+docker build -f my-image.Dockerfile -t registry.example.com/my-image:1.0 .
+
+# Custom version args
+docker build -f my-image.Dockerfile \
+  --build-arg NODE_VERSION=20 \
+  --build-arg PYTHON_VERSION=3.12 \
+  -t my-image:node20-py312 .
+```
+
+## Running the Image
+
+### Basic Run
+
+```bash
+docker run -it --rm my-image
+```
+
+| Flag | Purpose |
+|------|---------|
+| `-it` | Interactive + TTY (for shell access) |
+| `--rm` | Remove container after exit |
+
+### Mounting Volumes
+
+```bash
+# Mount a local directory into the container
+docker run -it --rm \
+  -v /path/on/host:/path/in/container \
+  my-image
+
+# Mount with read-only option
+docker run -it --rm \
+  -v /path/on/host:/path/in/container:ro \
+  my-image
+
+# Mount current directory
+docker run -it --rm \
+  -v $(pwd):/workspace \
+  my-image
+
+# Mount and set working directory
+docker run -it --rm \
+  -v /path/on/host:/workspace \
+  -w /workspace \
+  my-image
+```
+
+### Named Container (Persist)
+
+```bash
+# Give container a persistent name (survives exit)
+docker run -it --name my-container my-image
+
+# Start existing named container again
+docker start -ai my-container
+
+# Remove named container
+docker rm my-container
+```
+
+### Common Combinations
+
+```bash
+# Interactive dev environment with workspace mount
+docker run -it --rm \
+  -v $(pwd):/workspace \
+  -w /workspace \
+  --name my-dev \
+  my-image
+
+# Detached (background) with port mapping
+docker run -d \
+  -p 8080:8080 \
+  --name my-server \
+  my-image
+
+# Override entrypoint (get a shell instead of default cmd)
+docker run -it --rm \
+  --entrypoint /bin/bash \
+  my-image
 ```
 
 ## Notes

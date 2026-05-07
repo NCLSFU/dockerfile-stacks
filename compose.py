@@ -26,6 +26,7 @@ VALID_ENVS = ["noninteractive"]
 VALID_LAYERS = ["setup"]
 VALID_TOOLS = ["node", "git", "uv"]
 VALID_MIRRORS = ["apt", "npm", "pnpm", "uv"]
+VALID_LAUNCHERS = ["bash", "hermes", "openclaw"]
 
 
 def load_block(block_path: Path) -> str:
@@ -46,7 +47,7 @@ def build_header(base: str) -> str:
     return f"FROM {os_map[base]}\n"
 
 
-def build_body(env: list, layer: list, tools: list, mirrors: list, node_version: str, python_version: str) -> str:
+def build_body(env: list, layer: list, tools: list, mirrors: list, node_version: str, python_version: str, launcher: str) -> str:
     """Build the body sections from requested blocks."""
     lines = []
     lines.append("# ── Env ───────────────────────────────────────────────────────────────")
@@ -81,6 +82,12 @@ def build_body(env: list, layer: list, tools: list, mirrors: list, node_version:
             lines.append(block)
             lines.append("")
 
+    lines.append("# ── Launcher ──────────────────────────────────────────────────────────")
+    launcher_block = load_block(BLOCKS_DIR / "launcher" / f"{launcher}.txt")
+    if launcher_block:
+        lines.append(f"# {launcher}")
+        lines.append(launcher_block)
+
     return "\n".join(lines)
 
 
@@ -100,6 +107,9 @@ def main():
                         help="Node.js version (default: 22)")
     parser.add_argument("--python-version", default="3.11",
                         help="Python version for uv (default: 3.11)")
+    parser.add_argument("--launcher", default="bash",
+                        choices=VALID_LAUNCHERS,
+                        help=f"Container launcher: {', '.join(VALID_LAUNCHERS)} (default: bash)")
     parser.add_argument("--out", default="my-image.Dockerfile",
                         help="Output Dockerfile path (default: my-image.Dockerfile)")
     args = parser.parse_args()
@@ -121,7 +131,7 @@ def main():
     # Build Dockerfile
     sections = []
     sections.append(build_header(args.base))
-    sections.append(build_body(args.env, args.layer, tools, mirrors, args.node_version, args.python_version))
+    sections.append(build_body(args.env, args.layer, tools, mirrors, args.node_version, args.python_version, args.launcher))
     content = "\n".join(sections)
 
     # Substitute ARG values inline for blocks that need them
@@ -134,6 +144,8 @@ def main():
     print(f"✓ Generated: {output_path}")
     print(f"\nBuild with:")
     print(f"  docker build -f {output_path} -t my-image .")
+    print(f"\nRun with:")
+    print(f"  docker run -it --rm my-image")
     if "node" in tools or "uv" in tools:
         print(f"\nOr with custom versions:")
         build_args = []
