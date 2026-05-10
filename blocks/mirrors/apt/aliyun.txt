@@ -1,4 +1,6 @@
 RUN sed -i 's|http://archive.ubuntu.com/ubuntu/|http://mirrors.aliyun.com/ubuntu/|g' \
-    /etc/apt/sources.list \
+    /etc/apt/sources.list.d/ubuntu.sources \
+    && sed -i 's|http://security.ubuntu.com/ubuntu/|http://mirrors.aliyun.com/ubuntu/|g' \
+    /etc/apt/sources.list.d/ubuntu.sources \
     && apt-get update \
     && rm -rf /var/lib/apt/lists/*
