@@ -1,4 +1,7 @@
 ARG PYTHON_VERSION=3.11
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl git \
+    && rm -rf /var/lib/apt/lists/*
 RUN curl -fsSL https://astral.sh/uv/install.sh | bash \
     && mv /root/.local/bin/uv /usr/local/bin/uv
 RUN uv python install ${PYTHON_VERSION} \
