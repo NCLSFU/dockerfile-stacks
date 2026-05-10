@@ -25,7 +25,7 @@ VALID_BASES = ["ubuntu-24.04", "ubuntu-22.04"]
 VALID_ENVS = ["noninteractive"]
 VALID_LAYERS = ["setup"]
 VALID_TOOLS = ["node", "git", "uv"]
-VALID_MIRRORS = ["apt", "npm", "pnpm", "uv"]
+VALID_MIRRORS = ["apt", "npm", "pnpm", "uv", "pip"]
 VALID_LAUNCHERS = ["bash", "hermes", "openclaw"]
 
 
@@ -59,9 +59,10 @@ def build_body(env: list, layer: list, tools: list, mirrors: list, node_version:
 
     lines.append("# ── Mirrors (Aliyun) ────────────────────────────────────────────────")
     for m in mirrors:
+        if m == "pip":
+            continue  # pip is handled after tools
         block = load_block(BLOCKS_DIR / "mirrors" / m / "aliyun.txt")
         if block:
-            # Add comment header for mirror
             lines.append(f"# {m.upper()} mirror")
             lines.append(block)
             lines.append("")
@@ -79,6 +80,14 @@ def build_body(env: list, layer: list, tools: list, mirrors: list, node_version:
         block = load_block(BLOCKS_DIR / "tools" / f"{t}.txt")
         if block:
             lines.append(f"# {t}")
+            lines.append(block)
+            lines.append("")
+
+    # pip mirror must come after uv is installed
+    if "pip" in mirrors:
+        block = load_block(BLOCKS_DIR / "mirrors" / "pip" / "aliyun.txt")
+        if block:
+            lines.append("# PIP mirror")
             lines.append(block)
             lines.append("")
 
@@ -127,6 +136,9 @@ def main():
         if m not in VALID_MIRRORS:
             print(f"Warning: unknown mirror '{m}', skipping", file=sys.stderr)
             mirrors = [x for x in mirrors if x != m]
+    if "pip" in mirrors and "uv" not in tools:
+        print("Warning: pip mirror requires uv tool, adding uv", file=sys.stderr)
+        tools.append("uv")
 
     # Build Dockerfile
     sections = []
