@@ -17,4 +17,4 @@ RUN ARCH=$(uname -m) && \
     ln -sf /root/.local/hermes-node/bin/node /root/.local/bin/node && \
     ln -sf /root/.local/hermes-node/bin/npm /root/.local/bin/npm && \
     ln -sf /root/.local/hermes-node/bin/npx /root/.local/bin/npx && \
-    node --version
+    /root/.local/bin/node --version

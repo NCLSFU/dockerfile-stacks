@@ -105,7 +105,7 @@ def build_body_bash(env, layer, tools, mirrors, node_version, python_version, la
 
 
 def build_body_hermes(node_version, python_version, launcher):
-    """Build body for Hermès workflow: ordered 12-step build."""
+    """Build body for Hermès workflow: ordered 13-step build."""
     lines = []
 
     # 0. Hermès env vars
@@ -121,14 +121,15 @@ def build_body_hermes(node_version, python_version, launcher):
         lines.append(env_block)
         lines.append("")
 
-    # 2. Mirrors: apt + npm
+    # 2. Mirrors: apt only (npm mirror is set via ENV in node-tarball block)
     lines.append("# ── Mirrors ──────────────────────────────────────────────────────────────")
-    for m in ["apt", "npm"]:
-        block = load_block(BLOCKS_DIR / "mirrors" / m / "aliyun.txt")
-        if block:
-            lines.append(f"# {m.upper()} mirror")
-            lines.append(block)
-            lines.append("")
+    apt_block = load_block(BLOCKS_DIR / "mirrors" / "apt" / "aliyun.txt")
+    if apt_block:
+        lines.append("# APT mirror")
+        lines.append(apt_block)
+        lines.append("")
+    lines.append("# NPM mirror: set via ENV NODE_MIRROR in node-tarball block")
+    lines.append("")
 
     # 3. Layer: base setup (git, build-essential, ffmpeg, etc.)
     lines.append("# ── Layers ────────────────────────────────────────────────────────────")

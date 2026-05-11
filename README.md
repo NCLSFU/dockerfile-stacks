@@ -8,7 +8,8 @@ A collection of reusable Dockerfile building blocks for assembling Docker images
 - **blocks/base/** — OS base images (Ubuntu 24.04, 22.04)
 - **blocks/env/** — Environment variable snippets (e.g. noninteractive)
 - **blocks/layers/** — Patch layers (apt setup, base tools)
-- **blocks/tools/** — Language runtimes and CLIs (Node.js, Git, uv/Python)
+- **blocks/tools/** — Language runtimes and CLIs (Node.js, Git, uv/Python, node-tarball, python-uv, playwright)
+- **blocks/tools/hermes/** — Hermès-specific blocks (env, clone, venv, pip-install, init, path)
 - **blocks/mirrors/** — Chinese mirror configurations (Aliyun for apt, npm, pnpm; UV pip uses Aliyun, UV python uses TUNA)
 - **blocks/launcher/** — Container entrypoints (bash shell, Hermes Agent, OpenClaw CLI)
 
@@ -27,7 +28,17 @@ dockerfile-stacks/
 │   ├── tools/
 │   │   ├── node.txt         # Node.js (ARG NODE_VERSION, default 22)
 │   │   ├── git.txt
-│   │   └── uv.txt           # uv + Python (ARG PYTHON_VERSION, default 3.11)
+│   │   ├── uv.txt           # uv + Python (ARG PYTHON_VERSION, default 3.11)
+│   │   ├── node-tarball.txt # Node.js via official tarball (non-apt)
+│   │   ├── python-uv.txt    # Python via uv (standalone)
+│   │   ├── playwright.txt   # Playwright + chromium (Hermès)
+│   │   └── hermes/
+│   │       ├── env.txt          # HERMES_HOME, INSTALL_DIR, VIRTUAL_ENV
+│   │       ├── clone.txt        # git clone NousResearch/hermes-agent
+│   │       ├── venv.txt         # uv venv creation
+│   │       ├── pip-install.txt  # uv pip install -e ".[all]"
+│   │       ├── init.txt         # dirs + skills_sync
+│   │       └── path.txt         # PATH setup
 │   ├── mirrors/
 │   │   ├── apt/aliyun.txt
 │   │   ├── npm/aliyun.txt
@@ -67,10 +78,11 @@ python compose.py \
 | `--base` | `ubuntu-24.04`, `ubuntu-22.04` | Required |
 | `--env` | `noninteractive` | Optional; prevents apt interactive prompts |
 | `--layer` | `setup` | Optional; apt update + base tools |
-| `--tools` | `node`, `git`, `uv` | Comma-separated; all optional |
+| `--tools` | `node`, `git`, `uv`, `node-tarball`, `python-uv`, `playwright` | Comma-separated; all optional |
 | `--mirrors` | `apt`, `npm`, `pnpm`, `uv` | Comma-separated; Aliyun for apt/npm/pnpm; UV has both pip (Aliyun) and python (TUNA) mirrors |
 | `--node-version` | e.g. `22`, `20`, `18` | Defaults to `22` |
 | `--python-version` | e.g. `3.11`, `3.12` | Defaults to `3.11` |
+| `--workflow` | `bash`, `hermes` | Build mode: bash (block concat) or hermes (ordered 13-step build); defaults to `bash` |
 | `--launcher` | `bash`, `hermes`, `openclaw` | Container entrypoint; defaults to `bash` |
 | `--out` | filename | Output path; defaults to `my-image.Dockerfile` |
 
@@ -106,6 +118,19 @@ docker run -it --name my-dev my-image
 docker start -ai my-dev   # re-enter later
 ```
 
+## Workflows
+
+### `bash` workflow (default)
+
+Standard block concatenation — pick any combination of tools and mirrors.
+Good for: general-purpose images where you control the build order.
+
+### `hermes` workflow
+
+Ordered 13-step build designed specifically for the Hermès Agent (NousResearch).
+Steps: env → noninteractive → apt mirror → npm mirror → base tools → uv → python-via-uv → clone → venv → pip-install → node-tarball → playwright → init → path → launcher.
+Good for: building Hermès Agent images that match the canonical build order.
+
 ## Launchers
 
 Choose what runs when the container starts:
@@ -116,7 +141,21 @@ Choose what runs when the container starts:
 | `hermes` | Hermes Agent (NousResearch AI agent, Python-based, self-improving) |
 | `openclaw` | OpenClaw CLI gateway (TypeScript/Node.js) |
 
-**Example — build a dev container with Hermes Agent:**
+**Example — build a Hermès Agent image (hermes workflow):**
+
+```bash
+python compose.py \
+  --base ubuntu-24.04 \
+  --workflow hermes \
+  --launcher hermes \
+  --out hermes.Dockerfile
+
+docker build -f hermes.Dockerfile -t hermes .
+docker run -it --rm hermes
+# → Bash shell; Hermès Agent ready at /root/.hermes/hermes-agent
+```
+
+**Example — build a Hermès Agent image (bash workflow, block concat):**
 
 ```bash
 python compose.py \
