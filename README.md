@@ -84,7 +84,7 @@ python compose.py \
 | `--mirrors` | `apt`, `npm`, `pnpm`, `uv` | Comma-separated; Aliyun for apt/npm/pnpm; UV has both pip (Aliyun) and python (TUNA) mirrors |
 | `--node-version` | e.g. `22`, `20`, `18` | Defaults to `22` |
 | `--python-version` | e.g. `3.11`, `3.12` | Defaults to `3.11` |
-| `--workflow` | `bash`, `hermes` | Build mode: bash (block concat) or hermes (ordered 13-step build); defaults to `bash` |
+| `--workflow` | `bash`, `hermes` | Build mode: bash (block concat) or hermes (ordered 14-step build); defaults to `bash` |
 | `--launcher` | `bash`, `hermes`, `openclaw` | Container entrypoint; defaults to `bash` |
 | `--out` | filename | Output path; defaults to `my-image.Dockerfile` |
 
@@ -130,7 +130,7 @@ Good for: general-purpose images where you control the build order.
 ### `hermes` workflow
 
 Ordered 13-step build designed specifically for the Hermes Agent (NousResearch).
-Steps: env → noninteractive → apt mirror → base tools → uv → python-via-uv → clone → venv → pip-install → node-tarball → playwright → init → path → launcher.
+Steps: env → noninteractive → apt mirror → base tools → uv → python-via-uv → clone → venv → pip-install → node-tarball → playwright → init → copy-config → path → launcher.
 Good for: building Hermes Agent images that match the canonical build order.
 
 ## Launchers

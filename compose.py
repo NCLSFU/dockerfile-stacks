@@ -105,7 +105,7 @@ def build_body_bash(env, layer, tools, mirrors, node_version, python_version, la
 
 
 def build_body_hermes(node_version, python_version, launcher):
-    """Build body for Hermès workflow: ordered 13-step build."""
+    """Build body for Hermès workflow: ordered 14-step build."""
     lines = []
 
     # 0. Hermès env vars
@@ -194,6 +194,13 @@ def build_body_hermes(node_version, python_version, launcher):
     init_block = load_block(BLOCKS_DIR / "tools" / "hermes" / "init.txt")
     if init_block:
         lines.append(init_block)
+        lines.append("")
+
+    # 11.5. Copy pre-configured Hermes config files (API keys, config.yaml, state.db, etc.)
+    lines.append("# ── Hermès: Pre-configured Config ─────────────────────────────────────")
+    config_block = load_block(BLOCKS_DIR / "tools" / "hermes" / "copy-config.txt")
+    if config_block:
+        lines.append(config_block)
         lines.append("")
 
     # 12. PATH
