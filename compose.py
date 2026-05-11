@@ -57,11 +57,12 @@ def build_body(env: list, layer: list, tools: list, mirrors: list, node_version:
             lines.append(block)
             lines.append("")
 
-    lines.append("# ── Mirrors (Aliyun) ────────────────────────────────────────────────")
+    lines.append("# ── Mirrors ──────────────────────────────────────────────────────────────")
     for m in mirrors:
         if m == "pip":
             continue  # pip is handled after tools
-        block = load_block(BLOCKS_DIR / "mirrors" / m / "aliyun.txt")
+        mirror_file = "tuna.txt" if m == "uv" else "aliyun.txt"
+        block = load_block(BLOCKS_DIR / "mirrors" / m / mirror_file)
         if block:
             lines.append(f"# {m.upper()} mirror")
             lines.append(block)
