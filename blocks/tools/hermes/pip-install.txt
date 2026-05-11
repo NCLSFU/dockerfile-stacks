@@ -1,0 +1,2 @@
+# Install Hermes Python dependencies (requires venv already created)
+RUN . venv/bin/activate && uv pip install -e ".[all]"

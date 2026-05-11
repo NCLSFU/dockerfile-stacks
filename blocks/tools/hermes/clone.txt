@@ -1,0 +1,3 @@
+ARG HERMES_BRANCH=main
+RUN git clone --branch ${HERMES_BRANCH} https://github.com/NousResearch/hermes-agent.git "${INSTALL_DIR}"
+WORKDIR ${INSTALL_DIR}

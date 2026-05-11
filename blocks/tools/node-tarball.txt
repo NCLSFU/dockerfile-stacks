@@ -1,0 +1,20 @@
+ARG NODE_VERSION=22
+RUN ARCH=$(uname -m) && \
+    case "$ARCH" in \
+        x86_64) NODE_ARCH="x64" ;; \
+        aarch64|arm64) NODE_ARCH="arm64" ;; \
+        armv7l) NODE_ARCH="armv7l" ;; \
+        *) echo "Unsupported arch: $ARCH" && exit 1 ;; \
+    esac && \
+    INDEX_URL="https://nodejs.org/dist/latest-v${NODE_VERSION}.x/" && \
+    TARBALL=$(curl -fsSL "$INDEX_URL" | grep -oE "node-v${NODE_VERSION}\.[0-9]+\.[0-9]+-linux-${NODE_ARCH}\.tar\.xz" | head -1) && \
+    curl -fsSL "${INDEX_URL}${TARBALL}" -o /tmp/node.tar.xz && \
+    mkdir -p /root/.local/hermes-node && \
+    tar -xf /tmp/node.tar.xz -C /tmp && \
+    mv /tmp/node-v${NODE_VERSION}*-linux-${NODE_ARCH}/* /root/.local/hermes-node/ && \
+    rm -rf /tmp/node.tar.xz /tmp/node-v${NODE_VERSION}* && \
+    mkdir -p /root/.local/bin && \
+    ln -sf /root/.local/hermes-node/bin/node /root/.local/bin/node && \
+    ln -sf /root/.local/hermes-node/bin/npm /root/.local/bin/npm && \
+    ln -sf /root/.local/hermes-node/bin/npx /root/.local/bin/npx && \
+    node --version
