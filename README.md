@@ -9,7 +9,7 @@ A collection of reusable Dockerfile building blocks for assembling Docker images
 - **blocks/env/** — Environment variable snippets (e.g. noninteractive)
 - **blocks/layers/** — Patch layers (apt setup, base tools)
 - **blocks/tools/** — Language runtimes and CLIs (Node.js, Git, uv/Python)
-- **blocks/mirrors/** — Chinese mirror configurations (Aliyun for apt, npm, pnpm, uv)
+- **blocks/mirrors/** — Chinese mirror configurations (Aliyun for apt, npm, pip, pnpm; TUNA for uv)
 - **blocks/launcher/** — Container entrypoints (bash shell, Hermes Agent, OpenClaw CLI)
 
 ## Directory Structure
@@ -31,8 +31,9 @@ dockerfile-stacks/
 │   ├── mirrors/
 │   │   ├── apt/aliyun.txt
 │   │   ├── npm/aliyun.txt
+│   │   ├── pip/aliyun.txt
 │   │   ├── pnpm/aliyun.txt
-│   │   └── uv/aliyun.txt
+│   │   └── uv/tuna.txt
 │   └── launcher/
 │       ├── bash.txt         # Default: interactive bash shell
 │       ├── hermes.txt       # Hermes Agent (NousResearch AI agent)
@@ -66,7 +67,7 @@ python compose.py \
 | `--env` | `noninteractive` | Optional; prevents apt interactive prompts |
 | `--layer` | `setup` | Optional; apt update + base tools |
 | `--tools` | `node`, `git`, `uv` | Comma-separated; all optional |
-| `--mirrors` | `apt`, `npm`, `pnpm`, `uv` | Comma-separated; Aliyun mirrors for China |
+| `--mirrors` | `apt`, `npm`, `pip`, `pnpm`, `uv` | Comma-separated; Aliyun for apt/npm/pip/pnpm, TUNA for uv |
 | `--node-version` | e.g. `22`, `20`, `18` | Defaults to `22` |
 | `--python-version` | e.g. `3.11`, `3.12` | Defaults to `3.11` |
 | `--launcher` | `bash`, `hermes`, `openclaw` | Container entrypoint; defaults to `bash` |
