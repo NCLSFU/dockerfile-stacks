@@ -9,9 +9,9 @@ A collection of reusable Dockerfile building blocks for assembling Docker images
 - **blocks/env/** — Environment variable snippets (e.g. noninteractive)
 - **blocks/layers/** — Patch layers (apt setup, base tools)
 - **blocks/tools/** — Language runtimes and CLIs (Node.js, Git, uv/Python, node-tarball, python-uv, playwright)
-- **blocks/tools/hermes/** — Hermès-specific blocks (env, clone, venv, pip-install, init, path)
+- **blocks/tools/hermes/** — Hermes-specific blocks (env, clone, venv, pip-install, init, path)
 - **blocks/mirrors/** — Chinese mirror configurations (Aliyun for apt, npm, pnpm; UV pip uses Aliyun, UV python uses TUNA)
-- **blocks/launcher/** — Container entrypoints (bash shell, Hermès Agent, OpenClaw CLI)
+- **blocks/launcher/** — Container entrypoints (bash shell, Hermes Agent, OpenClaw CLI)
 
 ## Directory Structure
 
@@ -36,7 +36,7 @@ dockerfile-stacks/          # Git repo root
 │   │   ├── uv.txt           # uv + Python (ARG PYTHON_VERSION, default 3.11)
 │   │   ├── node-tarball.txt # Node.js via official tarball (non-apt)
 │   │   ├── python-uv.txt    # Python via uv (standalone)
-│   │   ├── playwright.txt   # Playwright + chromium (Hermès)
+│   │   ├── playwright.txt   # Playwright + chromium (Hermes)
 │   │   └── hermes/
 │   │       ├── env.txt          # HERMES_HOME, INSTALL_DIR, VIRTUAL_ENV
 │   │       ├── clone.txt        # git clone NousResearch/hermes-agent
@@ -53,7 +53,7 @@ dockerfile-stacks/          # Git repo root
 │   │       └── python.txt     # UV_INDEX_PYTHON_URL → TUNA (for uv python install)
 │   └── launcher/
 │       ├── bash.txt         # Default: interactive bash shell
-│       ├── hermes.txt       # Hermès Agent (NousResearch AI agent)
+│       ├── hermes.txt       # Hermes Agent (NousResearch AI agent)
 │       └── openclaw.txt     # OpenClaw CLI gateway
 └── recipes/                # Pre-composed Dockerfiles for common combos
 ```
@@ -129,9 +129,9 @@ Good for: general-purpose images where you control the build order.
 
 ### `hermes` workflow
 
-Ordered 13-step build designed specifically for the Hermès Agent (NousResearch).
+Ordered 13-step build designed specifically for the Hermes Agent (NousResearch).
 Steps: env → noninteractive → apt mirror → base tools → uv → python-via-uv → clone → venv → pip-install → node-tarball → playwright → init → path → launcher.
-Good for: building Hermès Agent images that match the canonical build order.
+Good for: building Hermes Agent images that match the canonical build order.
 
 ## Launchers
 
@@ -140,10 +140,10 @@ Choose what runs when the container starts:
 | Launcher | When to use |
 |----------|-------------|
 | `bash` | Default. Interactive dev environment, debugging |
-| `hermes` | Hermès Agent (NousResearch AI agent, Python-based, self-improving) |
+| `hermes` | Hermes Agent (NousResearch AI agent, Python-based, self-improving) |
 | `openclaw` | OpenClaw CLI gateway (TypeScript/Node.js) |
 
-**Example — build a Hermès Agent image (hermes workflow):**
+**Example — build a Hermes Agent image (hermes workflow):**
 
 ```bash
 python compose.py \
@@ -154,10 +154,10 @@ python compose.py \
 
 docker build -f hermes.Dockerfile -t hermes .
 docker run -it --rm hermes
-# → Bash shell; Hermès Agent ready at /root/.hermes/hermes-agent
+# → Bash shell; Hermes Agent ready at /root/.hermes/hermes-agent
 ```
 
-**Example — build a Hermès Agent image (bash workflow, block concat):**
+**Example — build a Hermes Agent image (bash workflow, block concat):**
 
 ```bash
 python compose.py \
@@ -169,7 +169,7 @@ python compose.py \
 
 docker build -f hermes-dev.Dockerfile -t hermes-dev .
 docker run -it --rm hermes-dev
-# → Hermès Agent TUI starts
+# → Hermes Agent TUI starts
 ```
 
 ## Image Naming
