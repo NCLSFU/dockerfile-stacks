@@ -1,6 +1,13 @@
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     wget \
     ca-certificates \
     tzdata \
+    git \
+    build-essential \
+    python3-dev \
+    libffi-dev \
+    ripgrep \
+    ffmpeg \
+    gnupg \
     && rm -rf /var/lib/apt/lists/*

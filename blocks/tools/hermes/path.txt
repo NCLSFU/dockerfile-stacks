@@ -1,0 +1,2 @@
+ENV PATH="/root/.local/bin:/root/.local/hermes-node/bin:/root/.hermes/hermes-agent/venv/bin:${PATH}"
+RUN echo 'export PATH="/root/.local/bin:/root/.local/hermes-node/bin:/root/.hermes/hermes-agent/venv/bin:$PATH"' >> /root/.bashrc

@@ -1,0 +1,6 @@
+# Requires: uv tool (installs playwright in the venv)
+# Needs: Node.js, Python venv already set up
+# NOTE: This block is Hermes-specific; it assumes VIRTUAL_ENV is already set.
+RUN . /root/.hermes/hermes-agent/venv/bin/activate && \
+    npm install --silent && \
+    npx playwright install --with-deps chromium

@@ -1,0 +1,4 @@
+# Create Hermes directories and sync skills (requires hermes-agent already cloned)
+RUN mkdir -p /root/.hermes/{sessions,logs,cron,pairing,hooks,image_cache,audio_cache,memories,skills} && \
+    cp -n tools/soul.md.example /root/.hermes/SOUL.md 2>/dev/null || true && \
+    . venv/bin/activate && python tools/skills_sync.py || true

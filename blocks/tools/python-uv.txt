@@ -1,0 +1,2 @@
+ARG PYTHON_VERSION=3.11
+RUN uv python install ${PYTHON_VERSION} && uv python list

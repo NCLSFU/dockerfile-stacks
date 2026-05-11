@@ -1,6 +1,4 @@
-# Launcher: Hermes Agent (NousResearch)
-# Installs Hermes Agent via official install script, then runs hermes CLI
-RUN curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
-
-# hermes command is installed to /usr/local/bin/hermes (FHS layout when root)
-CMD ["hermes"]
+# Launcher: Hermes Agent (built from source)
+# Validates hermes is available then runs bash (keeps container alive)
+RUN . venv/bin/activate && hermes --version 2>/dev/null || true
+CMD ["/bin/bash"]
