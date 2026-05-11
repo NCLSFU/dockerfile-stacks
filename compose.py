@@ -59,14 +59,24 @@ def build_body(env: list, layer: list, tools: list, mirrors: list, node_version:
 
     lines.append("# ── Mirrors ──────────────────────────────────────────────────────────────")
     for m in mirrors:
-        if m == "pip":
-            continue  # pip is handled after tools
-        mirror_file = "tuna.txt" if m == "uv" else "aliyun.txt"
-        block = load_block(BLOCKS_DIR / "mirrors" / m / mirror_file)
-        if block:
-            lines.append(f"# {m.upper()} mirror")
-            lines.append(block)
-            lines.append("")
+        if m == "uv":
+            # uv has two mirrors: python download (UV_INDEX_PYTHON_URL) and pip packages (UV_INDEX_URL)
+            python_block = load_block(BLOCKS_DIR / "mirrors" / "uv" / "python.txt")
+            if python_block:
+                lines.append("# UV_PYTHON mirror")
+                lines.append(python_block)
+                lines.append("")
+            pip_block = load_block(BLOCKS_DIR / "mirrors" / "uv" / "pip.txt")
+            if pip_block:
+                lines.append("# UV pip mirror")
+                lines.append(pip_block)
+                lines.append("")
+        else:
+            block = load_block(BLOCKS_DIR / "mirrors" / m / "aliyun.txt")
+            if block:
+                lines.append(f"# {m.upper()} mirror")
+                lines.append(block)
+                lines.append("")
 
     lines.append("# ── Layers ────────────────────────────────────────────────────────────")
     for l in layer:
@@ -81,14 +91,6 @@ def build_body(env: list, layer: list, tools: list, mirrors: list, node_version:
         block = load_block(BLOCKS_DIR / "tools" / f"{t}.txt")
         if block:
             lines.append(f"# {t}")
-            lines.append(block)
-            lines.append("")
-
-    # pip mirror must come after uv is installed
-    if "pip" in mirrors:
-        block = load_block(BLOCKS_DIR / "mirrors" / "pip" / "aliyun.txt")
-        if block:
-            lines.append("# PIP mirror")
             lines.append(block)
             lines.append("")
 
